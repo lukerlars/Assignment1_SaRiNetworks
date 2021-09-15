@@ -121,7 +121,7 @@ if __name__ == '__main__':
     
     col_8 = columns(enc,8)
 
-    print(scores)
+    #print(scores)
     alphabet_list =['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 
     alphabet_freq_dict ={}
@@ -129,9 +129,10 @@ if __name__ == '__main__':
         alphabet_freq_dict.update({alpha_freq.iloc[i,0]:(alpha_freq.iloc[i,1])/100})
     #print(alphabet_freq_dict)
 
+    ciphertext_new = 'FRRUU OIIYE AMIRN QLQVR BOKGK NSNQQ IUTTY IIYEA WIJTG LVILA ZWZKT ZCJQH IFNYI WQZXH RWZQW OHUTI KWNNQ YDLKA EOTUV XELMT SOSIX JSKPR BUXTI TBUXV BLNSX FJKNC HBLUK PDGUI IYEAM OJCXW FMJVM MAXYT XFLOL RRLAA JZAXT YYWFY NBIVH VYQIO SLPXH ZGYLH WGFSX LPSND UKVTR XPKSS VKOWM QKVCR TUUPR WQMWY XTYLQ XYYTR TJJGO OLMXV CPPSL KBSEI PMEGC RWZRI YDBGE BTMFP ZXVMF MGPVO OKZXX IGGFE SIBRX SEWTY OOOKS PKYFC ZIEYF DAXKG ARBIW KFWUA SLGLF NMIVH VVPTY IJNSX FJKNC HBLUK PDGUI IYEAM HVFDY CULJS EHHMX LRXBN OLVMR'
+    ciphertext_new = ciphertext_new.replace(' ', '')
+    ciphertext_col = columns(ciphertext_new, 5)
 
-    for i in range(0,8):
-         print(find_max_k(col_8[i]))
+    for i in range(0,5):
+         print(find_max_k(ciphertext_col[i]))
  
-    
-        #T?????RU

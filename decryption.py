@@ -146,8 +146,16 @@ if __name__ =='__main__':
     #print(key_length_analysis2(ciphertext_new, 11))
     
     #Key length == 7
+    
+    key0 = e_decrypter(ciphertext_new,5)
+    
+    #key1 = key_modifier(key0, 'SEQIEBM', 'SEQUENM')
+    attempt1 = decipher(ciphertext_old, 'EDRRE')
+    print(columnize(attempt1,5), key0)
 
-
+    
+    
+  
 
 
 
