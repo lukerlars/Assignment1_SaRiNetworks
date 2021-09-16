@@ -33,10 +33,10 @@ s1 = [[0, 1, 2, 3],
     [2, 1, 0, 3]]
 
 def bitlist_to_num(bitlist):
-    return int(''.join(str(x) for x in bitlist),base = 2)
+    return int(''.join(str(x) for x in bitlist), base = 2)
 
 def num_to_bitlist(number, size):
-    [int(bit) for bit in bin(number)[2:].zfill(size)]
+    return [int(bit) for bit in bin(number)[2:].zfill(size)]
 
 #Permutation and shift functions
 
@@ -72,6 +72,11 @@ def exp_perm(bitlist4):
     order = [4,1,2,3,2,3,4,1]
     return[bitlist4[idx -1] for idx in order]
 
+def switch(bitlist8):
+    """Switch left half with right half in bitlist of length 8 """
+    order =[4,5,6,7,0,1,2,3]
+    return[bitlist8[idx] for idx in order]
+
 #### Key generation
 def get_subkeys(key):
     """Function that retrieves subkeys from key"""
@@ -79,49 +84,114 @@ def get_subkeys(key):
     key_p10 = p10(key)
     
     left_key_shift_1 = shift(key_p10[:5],1)
-    right_key_shift_1 = shift(key_p10[:5],1)
+    right_key_shift_1 = shift(key_p10[5:],1)
+    
     key1 = p8(left_key_shift_1 + right_key_shift_1)
     
     left_key_shift_2 = shift(left_key_shift_1, 2)
     right_key_shift_2 = shift(right_key_shift_1,2)
-    key2 = p8(left_key_shift_1 + left_key_shift_2)
+    key2 = p8(left_key_shift_2 + right_key_shift_2)
     
     return key1, key2
 
 
 
 # The fk function
-def mapping_F(bitlist4, key):
-    assert(len(bitlist4)== 4)
+def fk(bitlist8, subkey):
+    assert(len(bitlist8)== 8 and len(subkey)==8)
+    l_bitlist4, r_bitlist4 = bitlist8[:4], bitlist8[4:]
 
-    key1,key2 = get_subkeys(key)
+    expp = exp_perm(r_bitlist4)
+    k1_xor = [n^k for n,k in zip(expp, subkey)]
 
-    expp = exp_perm(bitlist4)
-    k1_xor = [n^k for n,k in zip(expp, key1)]
+    s0_row_idx, s0_col_idx = bitlist_to_num([k1_xor[0],k1_xor[3]]), bitlist_to_num([k1_xor[1], k1_xor[2]]) 
+    s1_row_idx, s1_col_idx = bitlist_to_num([k1_xor[4],k1_xor[7]]), bitlist_to_num([k1_xor[5], k1_xor[6]])
 
-    s0_row_idx, s0_col_idx = bitlist_to_num(k1_xor[0]+k1_xor[3]), bitlist_to_num(k1_xor[2] + k1_xor[3]) 
-    s1_row_idx, s1_col_idx = bitlist_to_num(k1_xor[4]+k1_xor[7]), bitlist_to_num(k1_xor[5] + k1_xor[6])
+    s0_out = num_to_bitlist(s0[s0_row_idx][s0_col_idx],2)
+    s1_out = num_to_bitlist(s1[s1_row_idx][s1_col_idx],2)
 
-    s0_out = s0[s0_row_idx][s0_col_idx]
-    s1_out = s1[s1_row_idx][s1_col_idx]
+    s0s1 = s0_out + s1_out
+    p4 =[s0s1[1], s0s1[3],s0s1[2],s0s1[0]]
 
-
-
-
-def fk(l_bitlist4, r_bitlist4, key):
-    pass
-    
+    return [n^k for n,k in zip(l_bitlist4, p4)] + r_bitlist4
 
 
+#### SDES ----------------Encryption and decryption functions -------------
 
+def des_encrypt(plain_bitlist, key):
+    subkey1, subkey2 = get_subkeys(key)
+    return ip_inv(fk(switch(fk(ip(plain_bitlist),subkey1)) ,subkey2))
+
+def des_decrypt(cipher_bitlist, key):
+    subkey1, subkey2 = get_subkeys(key)
+    return ip_inv(fk(switch(fk(ip(cipher_bitlist),subkey2)) ,subkey1))
+
+#### ---------------------- Triple des
+
+def tripledes_encode(plaintext, key1, key2):
+    return(des_encrypt(des_decrypt(des_encrypt(plaintext,key1),key2),key1))
+
+def tripledes_decode(plaintext, key1, key2):
+    return(des_decrypt(des_encrypt(des_decrypt(plaintext,key1),key2),key1))
+
+
+ ###### Tables for encryption and decryption tasks  
+## Testcase ---------------------------------------------------
+
+testcases = [[[0,0,0,0,0,0,0,0,0,0], [1,0,1,0,1,0,1,0], [0,0,0,1,0,0,0,1]],
+    [[1,1,1,0,0,0,1,1,1,0], [1,0,1,0,1,0,1,0],[1,1,0,0,1,0,1,0]],
+    [[1,1,1,0,0,0,1,1,1,0], [0,1,0,1,0,1,0,1], [0,1,1,1,0,0,0,0]],
+    [[1,1,1,1,1,1,1,1,1,1], [1,0,1,0,1,0,1,0], [0,0,0,0,0,1,0,0]]]
+
+## Task 1 ------------------------------------------------------------
+task1_encryption_table = [[[0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0]], 
+[[0,0,0,0,0,1,1,1,1,1], [1,1,1,1,1,1,1,1]],
+[[0,0,1,0,0,1,1,1,1,1], [1,1,1,1,1,1,0,0]], 
+[[0,0,1,0,0,1,1,1,1,1], [1,0,1,0,0,1,0,1]]]
+
+task1_decryption_table = [[[1,1,1,1,1,1,1,1,1,1],[0,0,0,0,1,1,1,1]],
+[[0,0,0,0,0,1,1,1,1,1],  [0,1,0,0,0,0,1,1]],
+[[1,0,0,0,1,0,1,1,1,0],  [0,0,0,1,1,1,0,0]],
+[[1,0,0,0,1,0,1,1,1,0],  [1,1,0,0,0,0,1,0]]]
+
+## Task 2 ---------------------------------------
+
+task2_encryption_table = [[[1,0,0,0,1,0,1,1,1,0], [0,1,1,0,1,0,1,1,1,0], [1,1,0,1,0,1,1,1,]], 
+[[1,0,0,0,1,0,1,1,1,0], [0,1,1,0,1,0,1,1,1,0], [1,0,1,0,1,0,1,0]],
+[[1,1,1,1,1,1,1,1,1,1], [1,1,1,1,1,1,1,1,1,1], [0,0,0,0,0,0,0,0]], 
+[[0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0], [0,1,0,1,0,0,1,0,]]] 
+
+task2_decryption_table =[[[1,0,0,0,1,0,1,1,1,0], [0,1,1,0,1,0,1,1,1,0],  [1,1,1,0,0,1,1,0]],
+[[1,0,1,1,1,0,1,1,1,1], [0,1,1,0,1,0,1,1,1,0],  [0,1,0,1,0,0,0,0]],
+[[1,1,1,1,1,1,1,1,1,1], [1,1,1,1,1,1,1,1,1,1],  [0,0,0,0,0,1,0,0]],
+[[0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,0,0],  [1,1,1,1,0,0,0,0]]]
+
+#### -----------------------Top execution functions-------------
+
+def task1_encryption(table):
+    return([des_encrypt(case[1],case[0])for case in table])
+
+def task1_decryption(table):
+    return([des_decrypt(case[1],case[0]) for case in table])
+
+def task2_encryption(table):
+    return([tripledes_encode(case[2], case[0], case[1])for case in table])
+
+def task2_decryption(table):
+    return([tripledes_decode(case[2], case[0], case[1])for case in table])
 
 
 if __name__ =='__main__':
-    test_10 = [1,0,0,0,1,1,1,0,1,0]
-    test_8 = [1,0,0,0,1,1,1,0]
-    test_5=[0,1,1,0,0]
 
-    num = 8
-    format_string = str(num) +':0' + str(num) +'b'
+    plaintest1 = [1,0,1,0,1,0,1,0]
+    keytest1 = [0,0,0,0,0,0,0,0,0,0]
     
-   
+    # print(task1_encryption(task1_encryption_table))
+    # print('\n')
+    # print(task1_decryption(task1_decryption_table))
+
+    print(task2_encryption(task2_encryption_table))
+    print('\n')
+    print(task2_decryption(task2_decryption_table))
+    
+    
