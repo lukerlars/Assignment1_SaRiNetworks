@@ -199,17 +199,18 @@ def bruteforce_des(ctx_bitlist, searchword):
             return plaintext, key
     return 'Did not work', 'I said it did not work!'
 
+
 def bruteforce_tripledes(ctx_bitlist, searchword):
-    for key1 in tqdm(range(1024)):
-        key1 =[int(bit) for bit in bin(key1)[2:].zfill(10)]
-        for key2 in range(1024):
-            plaintext =''
-            key2 =[int(bit) for bit in bin(key2)[2:].zfill(10)]
-            for bitlist in ctx_bitlist:
-                char = bitlist_to_ascii(tripledes_decode(bitlist, key1, key2))
-                plaintext += char
-            if plaintext.find(searchword) != -1:
-                return plaintext, key1, key2
+    for key in tqdm(range(1024**2-1,0, -1)):
+        key = [int(bit) for bit in bin(key)[2:].zfill(20)]
+        key1 = key[:10]
+        key2 = key[10:]
+        plaintext =''
+        for bitlist in ctx_bitlist:
+            char = bitlist_to_ascii(tripledes_decode(bitlist, key1, key2))
+            plaintext += char
+        if plaintext.find(searchword) != -1:
+            return plaintext, key1, key2
     return 'Did not work', 'I said it did not work!', 'are you deaf?'
 
 
@@ -226,14 +227,17 @@ if __name__ =='__main__':
     # print('\n')
     # print(task2_decryption(task2_decryption_table))
 
-    #attempt, key = bruteforce_des(ctx1_bitlist, searchword= 'des')
-    #print(attempt)
+    # attempt, key = bruteforce_des(ctx1_bitlist, searchword= 'des')
+    # print(attempt, key)
 
-    #attempt2, key1, key2 = bruteforce_tripledes(ctx2_bitlist,searchword= 'des')
-    #print(attempt2)
+    ## Answerkey des = [1, 1, 1, 1, 1, 0, 1, 0, 1, 0]
+
+    # attempt2, key1, key2 = bruteforce_tripledes(ctx2_bitlist,searchword= 'des')
+    # print(attempt2, key1, key2)
     
-    answerkeys_triple =[[1,1,1,1,1,0,1,0,1,0], [0,1,0,1,0,1,1,1,1,1]]
-    print(''.join([bitlist_to_ascii(tripledes_decode(plain, answerkeys_triple[0], answerkeys_triple[1])) for plain in ctx2_bitlist]))
+    #Answerkeys tripledes =[[1,1,1,1,1,0,1,0,1,0], [0,1,0,1,0,1,1,1,1,1]]
+    
+    
 
     
     
