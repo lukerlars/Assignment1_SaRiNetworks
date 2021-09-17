@@ -1,14 +1,10 @@
 
-# Five functions:
-# IP inital permuation, Fk a complex function (invovlves both permuation and substitution),
-# SW simple permutation taht switches two havles of the data, aFk again, and then ivnerse 
-# of the intital permuataion. 
+# Implementation of SDES and Triple SDES---
+# -----
+# -----
+#### Note on format: Use arrays of binary ints to denote bytes  eks: [1,0,1,0,0,0,1,1]
 
-# as composition of functions: ciphertext = IP^-1 Fk2 SW fk1 IP (plaintext)
-# where k1 = P8(shift(P10(key)))
-# k2 = P8(shift(shift(P10(key))))
-
-from multiprocessing import Array
+from tqdm import tqdm 
 
 
 with open('ctx1.txt', 'r') as f:
@@ -17,9 +13,6 @@ with open('ctx1.txt', 'r') as f:
 with open('ctx2.txt', 'r') as f:
     ctx2 = f.read()
 
-
-
-#### Note on format: Use arrays of binary ints to denote bytes  eks: [1,0,1,0,0,0,1,1]
 
 #S-boxes
 s0 = [[1, 0, 3, 2],
@@ -31,6 +24,9 @@ s1 = [[0, 1, 2, 3],
     [2, 0, 1, 3],
     [3, 0, 1, 0],
     [2, 1, 0, 3]]
+
+
+#-----------------
 
 def bitlist_to_num(bitlist):
     return int(''.join(str(x) for x in bitlist), base = 2)
@@ -181,6 +177,42 @@ def task2_decryption(table):
     return([tripledes_decode(case[2], case[0], case[1])for case in table])
 
 
+### Task 3 tools
+def bitlist_to_ascii(bitlist8):
+    return chr(int( ''.join(str(bit) for bit in bitlist8),2))
+
+
+ctx1_bitlist = [int(bit) for bit in ctx1] 
+ctx1_bitlist = [ctx1_bitlist[n:(n+8)] for n in range(0, len(ctx1_bitlist),8)]
+
+ctx2_bitlist = [int(bit) for bit in ctx2] 
+ctx2_bitlist = [ctx2_bitlist[n:(n+8)] for n in range(0, len(ctx2_bitlist),8)]
+
+def bruteforce_des(ctx_bitlist, searchword):
+    for key in tqdm(range(1024)):
+        plaintext =''
+        key =[int(bit) for bit in bin(key)[2:].zfill(10)]
+        for bitslist in ctx_bitlist:
+            char = bitlist_to_ascii(des_decrypt(bitslist, key))
+            plaintext += char
+        if plaintext.find(searchword) != -1:
+            return plaintext, key
+    return 'Did not work', 'I said it did not work!'
+
+def bruteforce_tripledes(ctx_bitlist, searchword):
+    for key1 in tqdm(range(1024)):
+        key1 =[int(bit) for bit in bin(key1)[2:].zfill(10)]
+        for key2 in range(1024):
+            plaintext =''
+            key2 =[int(bit) for bit in bin(key2)[2:].zfill(10)]
+            for bitlist in ctx_bitlist:
+                char = bitlist_to_ascii(tripledes_decode(bitlist, key1, key2))
+                plaintext += char
+            if plaintext.find(searchword) != -1:
+                return plaintext, key1, key2
+    return 'Did not work', 'I said it did not work!', 'are you deaf?'
+
+
 if __name__ =='__main__':
 
     plaintest1 = [1,0,1,0,1,0,1,0]
@@ -189,9 +221,24 @@ if __name__ =='__main__':
     # print(task1_encryption(task1_encryption_table))
     # print('\n')
     # print(task1_decryption(task1_decryption_table))
+    # print('\n')
+    # print(task2_encryption(task2_encryption_table))
+    # print('\n')
+    # print(task2_decryption(task2_decryption_table))
 
-    print(task2_encryption(task2_encryption_table))
-    print('\n')
-    print(task2_decryption(task2_decryption_table))
+    #attempt, key = bruteforce_des(ctx1_bitlist, searchword= 'des')
+    #print(attempt)
+
+    #attempt2, key1, key2 = bruteforce_tripledes(ctx2_bitlist,searchword= 'des')
+    #print(attempt2)
+    
+    answerkeys_triple =[[1,1,1,1,1,0,1,0,1,0], [0,1,0,1,0,1,1,1,1,1]]
+    print(''.join([bitlist_to_ascii(tripledes_decode(plain, answerkeys_triple[0], answerkeys_triple[1])) for plain in ctx2_bitlist]))
+
     
     
+
+
+    
+    
+
