@@ -1,4 +1,3 @@
-import re
 import csv
 
 with open('Most_common_words.txt') as file:
@@ -119,7 +118,8 @@ def key_modifier(orig_key, ciphertext, suspected_word):
     assert len(orig_key) == len(ciphertext) == len(suspected_word)
     diffs = [ord(i) - ord(j) for i,j in zip(ciphertext,suspected_word)]
     
-    new_key = []
+    new_key = [] 
+
     for keyletter, diff in zip(orig_key, diffs):
         key_diff = (ord(keyletter) - ord('A') + diff)%26
         new_key.append(chr(ord('A') + key_diff))
@@ -149,7 +149,7 @@ if __name__ =='__main__':
 
     print(ciphertext_new)
     
-    
+     
   
 
 
