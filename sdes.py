@@ -124,11 +124,11 @@ def des_decrypt(cipher_bitlist, key):
 
 #### ---------------------- Triple des
 
-def tripledes_encode(plaintext, key1, key2):
-    return(des_encrypt(des_decrypt(des_encrypt(plaintext,key1),key2),key1))
+def tripledes_encode(plainbits, key1, key2):
+    return(des_encrypt(des_decrypt(des_encrypt(plainbits,key1),key2),key1))
 
-def tripledes_decode(plaintext, key1, key2):
-    return(des_decrypt(des_encrypt(des_decrypt(plaintext,key1),key2),key1))
+def tripledes_decode(cipherbits, key1, key2):
+    return(des_decrypt(des_encrypt(des_decrypt(cipherbits,key1),key2),key1))
 
 
  ###### Tables for encryption and decryption tasks  
@@ -197,7 +197,7 @@ def bruteforce_des(ctx_bitlist, searchword):
             plaintext += char
         if plaintext.find(searchword) != -1:
             return plaintext, key
-    return 'Did not work', 'I said it did not work!'
+    return 'Did not work'
 
 
 def bruteforce_tripledes(ctx_bitlist, searchword):
@@ -211,7 +211,7 @@ def bruteforce_tripledes(ctx_bitlist, searchword):
             plaintext += char
         if plaintext.find(searchword) != -1:
             return plaintext, key1, key2
-    return 'Did not work', 'I said it did not work!', 'are you deaf?'
+    return 'Did not work'
 
 
 if __name__ =='__main__':
@@ -236,6 +236,8 @@ if __name__ =='__main__':
     # print(attempt2, key1, key2)
     
     #Answerkeys tripledes =[[1,1,1,1,1,0,1,0,1,0], [0,1,0,1,0,1,1,1,1,1]]
+
+    print(ctx2)
     
     
 

@@ -21,27 +21,18 @@ def vigenere_decode(ciphertext, keyword):
         decrypted += chr(dec_ord)
     return decrypted
 
-def autokey_encode(plaintext, keyword):
-    "Encodes plaintext using the autokey cipher"
-    ciphertext = ''
-    key = keyword + plaintext
-    for i in range(len(plaintext)):
-        enc = (ord(plaintext[i]) + ord(key[i]) -2*ord('A'))%26 + ord('A')
-        ciphertext += chr(enc)
-    return ciphertext
-
-def autokey_decipher(ciphertext, keyword):
+def autokey_decode(ciphertext, keyword):
     plaintext = ''
     key = keyword
     for i in range(0, len(ciphertext),len(keyword)):
-        plaintext += vigenere_decode(ciphertext[i:i+len(keyword)],key)
+        plaintext += vigenere_decode(ciphertext[i:i+len(keyword)],key[-len(keyword):])
         key += plaintext
     return plaintext
 
 def rotate(word):
     return ''.join([w for w in (word[-1] + word[:(len(word)-1)])])
 
-def word_looping_decrypt(ciphertext, keyword):
+def word_looping(ciphertext, keyword):
     """ """
     decrypts =[]
     kw_variants = []
@@ -51,14 +42,14 @@ def word_looping_decrypt(ciphertext, keyword):
         kw_variants.append(keyword)
         keyword = rotate(keyword)
     return decrypts, kw_variants
-
+  
 def vocab_search(ciphertext, keyword, searc_vocab = common_words):
     if keyword in searc_vocab:
         search_words = searc_vocab
     else:
         search_words = searc_vocab +[keyword]
     
-    decrypts, sw_variants = word_looping_decrypt(ciphertext, keyword)
+    decrypts, sw_variants = word_looping(ciphertext, keyword)
     reg_search = [[re.search(word, dec) for word in search_words] for dec in decrypts ]   
     
     matches ={}
@@ -87,7 +78,7 @@ def key_forcing(ciphertext, suggestions):
 
 
 
-class Tabula: 
+class Autokey_cryptanalysis: 
 
     def __init__(self, ciphertext):
         self.ciphertext = ciphertext
@@ -122,8 +113,8 @@ class Tabula:
 
 
     def unfolding(self, gram, gram_pos, offset):
-        self.keystream = '-'*len(self.ciphertext)
-        inst.keystream_insert(gram, gram_pos)
+        #self.keystream = '-'*len(self.ciphertext)
+        self.keystream_insert(gram, gram_pos)
         #self.plaintext_update()
 
         right_len = len(self.ciphertext[gram_pos[0]:])
@@ -136,7 +127,6 @@ class Tabula:
             self.keystream_insert(next_r_gram, (gram_pos[0]+i + offset, gram_pos[1]+ i+ offset))
             self.keystream = self.keystream[:len(self.ciphertext)]
         
-        
 
         for i in range(0, left_len-offset, offset):
             next_l_gram = vigenere_decode(self.ciphertext[gram_pos[0] -i -offset :gram_pos[1] - i-offset], next_l_gram)
@@ -145,8 +135,6 @@ class Tabula:
         
         self.plaintext_update()
         
-
-
 
     def disp(self,width = 100):
         for i in range(0,len(self.ciphertext), width):
@@ -161,6 +149,9 @@ if __name__ == '__main__':
     ciphertext= 'FRRUU OIIYE AMIRN QLQVR BOKGK NSNQQ IUTTY IIYEA WIJTG LVILA ZWZKT ZCJQH IFNYI WQZXH RWZQW OHUTI KWNNQ YDLKA EOTUV XELMT SOSIX JSKPR BUXTI TBUXV BLNSX FJKNC HBLUK PDGUI IYEAM OJCXW FMJVM MAXYT XFLOL RRLAA JZAXT YYWFY NBIVH VYQIO SLPXH ZGYLH WGFSX LPSND UKVTR XPKSS VKOWM QKVCR TUUPR WQMWY XTYLQ XYYTR TJJGO OLMXV CPPSL KBSEI PMEGC RWZRI YDBGE BTMFP ZXVMF MGPVO OKZXX IGGFE SIBRX SEWTY OOOKS PKYFC ZIEYF DAXKG ARBIW KFWUA SLGLF NMIVH VVPTY IJNSX FJKNC HBLUK PDGUI IYEAM HVFDY CULJS EHHMX LRXBN OLVMR'
     ciphertext = ciphertext.replace(' ','')
 
+    ciphertext_task3 = 'IRKZV  ONZPY  UAQZL  ULCDI OEVWF ETBAW SHLGOYQSXT UQRRK LRQUT  FHUSE  ZBFPR BEPHY DYEKFZSPPT  VYQSY GKUHJ GNHXN UMWFF XIZFN  NLWTJCKYHZ YDPDX KCOUO JEOMU AKVAU EGUEX RKHFCSNHGG WRABW RASXJ  IFJHO  JRLLJ  KOQLO  UQRITYHVFV GZGRM TLRQJ  ZGNNP  NYJAE  DFLQI  SLYSVRVKLE  AJUNL MHDGE  IFFQN  FKEKT NJGQN OPOXMVVRRC JGHEH  FEVGB  QDAEI  FDHTA AWFYG ZLLVOAUXFV JRPGV DYOYK BFMQA TWFMS WUQEB PQHXCWWEUP LGSGL NYMTM RXOWK FZFOE  FUBFG  QFNVIOVLHZ  NETBS  AIBBT  PEIHQ  DRTAU EGUEX RKHFCSNHGG PDDHY OBGOV CJBXG  DVEIZ  LWMJS'
+    ciphertext_task3 = ciphertext_task3.replace(' ','')
+    
     common_quadrigrams = ['THAT', 'THER', 'WITH', 'TION', 'HERE', 'OULD', 'IGHT', 'HAVE', 'HICH', 'WHIC', 'THIS', 'THIN', 'THEY', 'ATIO', 'EVER', 'FROM', 'OUGH', 'WERE', 'HING', 'MENT']
 
     # suggestions =[]
@@ -176,11 +167,17 @@ if __name__ == '__main__':
 
     
     diff = 6
-    inst = Tabula(ciphertext)
+    inst = Autokey_cryptanalysis(ciphertext)
     inst.unfolding('HET',(69, 72), diff)
     inst.plaintext_update()
-    
+    inst.unfolding('OGR', (re.search('YPT', inst.keystream).span()[0]+ 3,re.search('YPT', inst.keystream).span()[1]+3), diff)    
     inst.disp()
+    
+    #print(vigenere_decode('FRRUUO', 'CRYPTO'))
+    ### KEY = DATFBA
+
+    #print(autokey_decode(ciphertext, 'DATFBA'))
+    #print(autokey_decode(ciphertext_task3, 'DATFBA'))
 
 
     
