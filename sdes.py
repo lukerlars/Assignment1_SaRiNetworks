@@ -235,8 +235,8 @@ if __name__ =='__main__':
     print(bruteforce_des(ctx1_bitlist, 'des'))
 
 
-    #attempt2, key1, key2 = bruteforce_tripledes(ctx2_bitlist,searchword= 'des')
-    #print(attempt2, key1, key2)
+    attempt2, key1, key2 = bruteforce_tripledes(ctx2_bitlist,searchword= 'des')
+    print(attempt2, key1, key2)
 
     print('\n Answerkeys bruteforce tripledes =[[1,1,1,1,1,0,1,0,1,0], [0,1,0,1,0,1,1,1,1,1]]' )
 
