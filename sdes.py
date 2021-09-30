@@ -6,7 +6,6 @@
 
 from tqdm import tqdm 
 
-
 with open('ctx1.txt', 'r') as f:
     ctx1 = f.read()
 
@@ -122,7 +121,7 @@ def des_decrypt(cipher_bitlist, key):
     subkey1, subkey2 = get_subkeys(key)
     return ip_inv(fk(switch(fk(ip(cipher_bitlist),subkey2)) ,subkey1))
 
-#### ---------------------- Triple des
+#### ---------------------- Triple des -------------------------------------
 
 def tripledes_encode(plainbits, key1, key2):
     return(des_encrypt(des_decrypt(des_encrypt(plainbits,key1),key2),key1))
@@ -132,14 +131,14 @@ def tripledes_decode(cipherbits, key1, key2):
 
 
  ###### Tables for encryption and decryption tasks  
-## Testcase ---------------------------------------------------
+## Testcase --------------------------------------------------------------
 
 testcases = [[[0,0,0,0,0,0,0,0,0,0], [1,0,1,0,1,0,1,0], [0,0,0,1,0,0,0,1]],
     [[1,1,1,0,0,0,1,1,1,0], [1,0,1,0,1,0,1,0],[1,1,0,0,1,0,1,0]],
     [[1,1,1,0,0,0,1,1,1,0], [0,1,0,1,0,1,0,1], [0,1,1,1,0,0,0,0]],
     [[1,1,1,1,1,1,1,1,1,1], [1,0,1,0,1,0,1,0], [0,0,0,0,0,1,0,0]]]
 
-## Task 1 ------------------------------------------------------------
+## Task 1 -----------------------------------------------------------------
 task1_encryption_table = [[[0,0,0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0]], 
 [[0,0,0,0,0,1,1,1,1,1], [1,1,1,1,1,1,1,1]],
 [[0,0,1,0,0,1,1,1,1,1], [1,1,1,1,1,1,0,0]], 
@@ -215,29 +214,33 @@ def bruteforce_tripledes(ctx_bitlist, searchword):
 
 
 if __name__ =='__main__':
-
-    plaintest1 = [1,0,1,0,1,0,1,0]
-    keytest1 = [0,0,0,0,0,0,0,0,0,0]
     
-    # print(task1_encryption(task1_encryption_table))
-    # print('\n')
-    # print(task1_decryption(task1_decryption_table))
-    # print('\n')
-    # print(task2_encryption(task2_encryption_table))
-    # print('\n')
-    # print(task2_decryption(task2_decryption_table))
+    print('Solving task 1 \n')
+    print('Task 1 encrypted bits\n')
+    print(task1_encryption(task1_encryption_table))
+    print('\n')
+    print('task 1 decrypted bits \n')
+    print(task1_decryption(task1_decryption_table))
+    print('\n')
+    print('task 2 encrypted bits ')
+    print(task2_encryption(task2_encryption_table))
+    print('\n')
+    print('task 2 decrypted bits \n')
+    print(task2_decryption(task2_decryption_table))
 
-    # attempt, key = bruteforce_des(ctx1_bitlist, searchword= 'des')
-    # print(attempt, key)
+    attempt, key = bruteforce_des(ctx1_bitlist, searchword= 'des')
+    print(attempt, key)
 
-    ## Answerkey des = [1, 1, 1, 1, 1, 0, 1, 0, 1, 0]
+    print('\n Answerkey bruteforce des = [1, 1, 1, 1, 1, 0, 1, 0, 1, 0]')
+    print(bruteforce_des(ctx1_bitlist, 'des'))
 
-    # attempt2, key1, key2 = bruteforce_tripledes(ctx2_bitlist,searchword= 'des')
-    # print(attempt2, key1, key2)
+
+    #attempt2, key1, key2 = bruteforce_tripledes(ctx2_bitlist,searchword= 'des')
+    #print(attempt2, key1, key2)
+
+    print('\n Answerkeys bruteforce tripledes =[[1,1,1,1,1,0,1,0,1,0], [0,1,0,1,0,1,1,1,1,1]]' )
+
     
-    #Answerkeys tripledes =[[1,1,1,1,1,0,1,0,1,0], [0,1,0,1,0,1,1,1,1,1]]
-
-    print(ctx2)
     
     
 
